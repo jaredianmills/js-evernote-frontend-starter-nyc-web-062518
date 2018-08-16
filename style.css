@@ -58,10 +58,21 @@ body {
   margin-left: 10%;
   float: left;
   /* border: 3px solid black; */
+  position: relative;
 }
 
 .sidebar-note:hover {
   color: white;
   text-decoration: underline overline;
   cursor: pointer;
+}
+
+.clearfix {
+    overflow: auto;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
 }
