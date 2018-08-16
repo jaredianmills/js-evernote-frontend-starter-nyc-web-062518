@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function fetchIndividualNote(id, callback) {
-    fetch(`http://localhost:3000/api/v1/notes/${id}`).then(resp => resp.json()).then(data => callback(id, data))
+    fetch(`http://localhost:3000/api/v1/notes/${id}`).then(resp => resp.json()).then(note => callback(id, note))
   }
 
 
@@ -135,7 +135,7 @@ function renderEditForm(noteId, note) {
       <br><br>
       <textarea id="new-note-body" rows="4" cols="60" type="text-area" name="body">${note.body}</textarea>
       <br><br>
-      <input type="submit" value="submit"> <button>Cancel</button>
+      <input type="Submit" value="Submit"> <button>Cancel</button>
     </form>
   </div>`
 }
@@ -146,7 +146,7 @@ singleNoteDisplayArea.addEventListener("click", (event) => {
   if (event.target.innerText === "Cancel") {
     let eventParent = event.target.parentElement.parentElement
     selectIndividualNote(eventParent)
-  } else if (event.target.value === "submit") {
+  } else if (event.target.value === "Submit") {
     // debugger
     let eventParent = event.target.parentElement.parentElement
     let noteId = eventParent.id.split("-")
