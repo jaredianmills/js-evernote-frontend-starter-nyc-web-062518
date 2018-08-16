@@ -3,12 +3,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <link rel="stylesheet" href="style.css">
+  <title>Evernote</title>
 </head>
 <body>
-  <div id='body'></div>
+    <center><h1 id="main-heading">Welcome to Evernote</h1></center>
+    <!-- <h3 id="click-to-see-user-notes"><center><a href="#">Click here to see all of your notes</a></center></h3> -->
+<!-- <div id="main-body-float-left"> -->
 
-  
+    <div id="new-note-form">
+      <h2>Write a New Note</h2>
+      <form>
+        <input id="new-note-title" type="text" name="title" placeholder="Note Title">
+        <br><br>
+        <textarea id="new-note-body" rows="4" cols="86" type="text-area" name="body" placeholder="Note Body"></textarea>
+        <br><br>
+        <input type="submit" value="submit">
+      </form>
+    </div>
+
+    <div id="single-note-display-area"></div>
+
+  <!-- </div> -->
+
+    <div id='posts-sidebar'>
+      <h1><center>Notes</center></h1>
+      <br>
+    </div>
+
   <script type="text/javascript" src="index.js"></script>
 </body>
 </html>
