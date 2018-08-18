@@ -2,6 +2,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   fetchNotes(displayAllNotes)
 
+  setInterval(() => {
+    fetchNotes(displayAllNotes)
+  }, 1000)
+
+  // requestIdleCallback(console.log('hello world'), { timeout: 1000 })
 // constants for html elements
   const authenticationHeaders = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 
@@ -16,9 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
 //////////////////////////////////
 
 
-
-
-
 // these function show all notes in the sidebar
 
   function fetchNotes(callback) {
@@ -27,15 +29,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   function displayAllNotes(data) {
-    postsSidebar.innerHTML = "<h1><center>Notes</center></h1><br>"
+    // postsSidebar.innerHTML = "<h1 class='main-heading'><center>Notes</center></h1><input id='search-bar' type='text' placeholder='Search Notes'><br><hr>"
+    postsSidebar.querySelectorAll('div').forEach(div => div.remove())
+
     data = data.reverse()
+    // debugger
     data.forEach(note => {
       let noteDiv = document.createElement("div")
-      noteDiv.innerHTML = `<h2 id="sidebar-note-title-${note.id}" class="sidebar-note">${note.title}</h2><hr>`
+      noteDiv.innerHTML = `<div><h3 id="sidebar-note-title-${note.id}" class="sidebar-note">${note.title}</h2><hr></div>`
       // <p id="sidebar-note-body-${note.id}">${note.body.slice(0, 10)}</p><hr>
-      // noteDiv.id = `sidebar-note-${note.id}`
-      // noteDiv.className = "sidebar-note"
+      noteDiv.id = `sidebar-note-${note.id}`
+      noteDiv.className = "sidebar-note"
       postsSidebar.appendChild(noteDiv)
+      // postsSidebar.innerHTML += `<div><h2 id="sidebar-note-title-${note.id}" class="sidebar-note">${note.title}</h2><hr></div>`
     })
   }
 
@@ -64,12 +70,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   function displayIndividualNote(id, note) {
-    let selectedNote = document.createElement("div")
-    selectedNote.innerHTML = `<div id="single-post-${id}"><h1>${note.title}</h1><p>${note.body}</p><br><button>Delete Note</button> <button>Edit Note</button></div>`
-    selectedNote.className = "centered-single-note"
-    singleNoteDisplayArea.innerHTML = selectedNote.innerHTML
-    singleNoteDisplayArea.style.display = "block"
+    newNoteForm.classList.add("fadeOut")
+    singleNoteDisplayArea.classList.add("fadeOut")
+    setTimeout (() => {
+      let selectedNote = document.createElement("div")
+      selectedNote.innerHTML = `<div id="single-post-${id}"><h1>${note.title}</h1><p>${note.body}</p><br><button>Delete Note</button> <button>Edit Note</button></div>`
+      selectedNote.className = "centered-single-note"
+      singleNoteDisplayArea.innerHTML = `<button id="single-note-close-button">x</button>` + selectedNote.innerHTML
+      singleNoteDisplayArea.style.textAlign = "center"
+      singleNoteDisplayArea.classList.remove("fadeOut")
+      newNoteForm.style.display = "none"
+      singleNoteDisplayArea.style.display = "block"
+      singleNoteDisplayArea.classList.add("fadeIn")
+    }, 500)
   }
+
+  singleNoteDisplayArea.addEventListener("click", (event) => {
+    if (event.target.id === "single-note-close-button") {
+      singleNoteDisplayArea.classList.remove("FadeIn")
+      singleNoteDisplayArea.classList.add("FadeOut")
+      setTimeout(() => {
+        singleNoteDisplayArea.style.display = "none"
+        newNoteForm.classList.remove("fadeOut")
+        newNoteForm.style.display = "block"
+        newNoteForm.classList.add("fadeIn")
+        singleNoteDisplayArea.classList.remove("FadeOut")
+      }, 500)
+    }
+  })
 
 //////////////////////////////////
 
@@ -80,10 +108,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   newNoteForm.addEventListener("submit", (event) => {
     event.preventDefault()
-    let newNote = {"title": `${newNoteTitle.value}`, "body": `${newNoteBody.value}`, "user_id": 1}
-    createNewNote(newNote)
-    newNoteTitle.value = ""
-    newNoteBody.value = ""
+    debugger
+    if (newNoteTitle.value === "" || newNoteBody.value === "") {
+      alert("A note must have both a title and a body.")
+    } else {
+      let newNote = {"title": `${newNoteTitle.value}`, "body": `${newNoteBody.value}`, "user_id": 1}
+      createNewNote(newNote)
+      newNoteTitle.value = ""
+      newNoteBody.value = ""
+    }
   })
 
   function createNewNote(newNote) {
@@ -101,7 +134,11 @@ document.addEventListener("DOMContentLoaded", () => {
         let noteId = event.target.parentElement.id.split("-")
         noteId = noteId[noteId.length - 1]
         singleNoteDisplayArea.style.display = "none"
+        document.getElementById("search-bar").value = ""
         deleteNote(noteId)
+        newNoteForm.style.display = "block"
+        newNoteForm.classList.remove("fadeOut")
+        newNoteForm.classList.add("fadeIn")
       }
     }
   })
@@ -121,7 +158,12 @@ singleNoteDisplayArea.addEventListener("click", (event) => {
     let noteId = event.target.parentElement.id.split("-")
     noteId = noteId[noteId.length - 1]
     // event.target.parentElement.parentElement.style.display = "none"
-    fetchIndividualNote(noteId, renderEditForm)
+    singleNoteDisplayArea.classList.add("FadeOut")
+    setTimeout(()=> {
+      fetchIndividualNote(noteId, renderEditForm)
+      singleNoteDisplayArea.classList.remove("FadeOut")
+      singleNoteDisplayArea.classList.remove("FadeOut")
+    }, 500)
   }
 })
 
@@ -129,11 +171,11 @@ function renderEditForm(noteId, note) {
   singleNoteDisplayArea.style.textAlign = "left"
   singleNoteDisplayArea.innerHTML = `
   <div id="single-post-${noteId}">
-    <h3>Edit Note</h3>
-    <form>
-      <input id="new-note-title" type="text" name="title" value="${note.title}">
+    <h3 class='main-heading'>Edit Note</h3>
+    <form id="edit-note-form">
+      <input id="edit-note-title" type="text" name="title" value="${note.title}">
       <br><br>
-      <textarea id="new-note-body" rows="4" cols="60" type="text-area" name="body">${note.body}</textarea>
+      <textarea id="edit-note-body" rows="4" cols="60" type="text-area" name="body">${note.body}</textarea>
       <br><br>
       <input type="Submit" value="Submit"> <button>Cancel</button>
     </form>
@@ -147,7 +189,6 @@ singleNoteDisplayArea.addEventListener("click", (event) => {
     let eventParent = event.target.parentElement.parentElement
     selectIndividualNote(eventParent)
   } else if (event.target.value === "Submit") {
-    // debugger
     let eventParent = event.target.parentElement.parentElement
     let noteId = eventParent.id.split("-")
     noteId = noteId[noteId.length - 1]
@@ -155,21 +196,52 @@ singleNoteDisplayArea.addEventListener("click", (event) => {
     let noteBody = event.target.parentElement.querySelector('textarea').value
     let updatedNote = {"id": `${noteId}`, "title": `${noteTitle}`, "body": `${noteBody}`, "user_id": 1}
     editNote(eventParent, updatedNote)
-    // console.log(eventParent, updatedNote);
-    // debugger
   }
 })
 
 
 function editNote(eventParent, updatedNote, authenticationHeaders) {
+  document.getElementById("search-bar").value = ""
   const authHeaders = {'Content-Type': 'application/json', 'Accept': 'application/json'}
   fetch(`http://localhost:3000/api/v1/notes/${updatedNote.id}`, {method: 'PATCH', body: JSON.stringify(updatedNote), headers: authHeaders}).then(data => fetchNotes(displayAllNotes)).then(d => selectIndividualNote(eventParent))
 }
 
-
-
 //////////////////////////////////
 
+
+
+// these functions are responsible for searching the notes in the side bar
+
+
+// const searchBar = document.getElementById("search-bar")
+
+postsSidebar.addEventListener("keyup", (event) => {
+  if (event.target.id === "search-bar") {
+    let searchTerm = event.target.value
+    // debugger
+    if (searchTerm === "") {
+      fetchNotes(displayAllNotes)
+    } else {
+      fetchAndFilterNotes(searchTerm, filterNotes)
+    }
+  }
+})
+
+
+function filterNotes(searchTerm, notes) {
+  let filteredNotes = notes.filter(note => {
+    // debugger
+    return note.title.toLowerCase().includes(searchTerm.toLowerCase()) || note.body.toLowerCase().includes(searchTerm.toLowerCase())
+  })
+  displayAllNotes(filteredNotes)
+}
+
+function fetchAndFilterNotes(searchTerm, callback) {
+  fetch('http://localhost:3000/api/v1/notes').then(resp => resp.json()).then(notes => callback(searchTerm, notes))
+}
+
+
+///////////////////////////////////
 
 })
 
